@@ -842,6 +842,8 @@ class ConversationViewer {
     this.current = undefined;
 
     this.initDateInput();
+    this.initGoToStartButton();
+    this.initGoToEndButton();
     this.initSearch();
   }
 
@@ -898,8 +900,7 @@ class ConversationViewer {
     // Set initial scrolling position
     let scrollTop = this.messages[this.current].getScrollTop();
     if (scrollTop === undefined) { // Set the cursor to the bottom of the page if unset
-      this.viewer.scrollTop = this.viewer.scrollHeight;
-      this.messages[this.current].setScrollTop(this.viewer.scrollHeight);
+      this.setBottomScroll();
     } else {
       this.viewer.scrollTop = scrollTop;
     }
@@ -909,6 +910,16 @@ class ConversationViewer {
     const scrollTop = this.renderer.getScrollTopFromIndex(index) - this.viewer.clientHeight / 4; // to set the start of the desired messages in the center-top of the screen
     this.messages[this.current].setScrollTop(scrollTop);
     this.viewer.scrollTop = scrollTop;
+  }
+
+  setTopScroll() {
+    this.viewer.scrollTop = 0;
+    this.messages[this.current].setScrollTop(0);
+  }
+
+  setBottomScroll() {
+    this.viewer.scrollTop = this.viewer.scrollHeight;
+    this.messages[this.current].setScrollTop(this.viewer.scrollHeight);
   }
 
   initDateInput() {
@@ -923,6 +934,25 @@ class ConversationViewer {
       await this.displayCurrentAtIndex(index);
       this.messages[this.current].resetSearchIndex();
     });
+  }
+
+  initGoToStartButton() {
+    const button = document.querySelector('#go-to-start');
+    button.onclick = async () => {
+      await this.displayCurrentAtIndex(0);
+      this.messages[this.current].resetSearchIndex();
+      this.setTopScroll();
+    };
+  }
+
+  initGoToEndButton() {
+    const button = document.querySelector('#go-to-end');
+    button.onclick = async () => {
+      const lastIndex = this.messages[this.current].getLength() - 1;
+      await this.displayCurrentAtIndex(lastIndex);
+      this.messages[this.current].resetSearchIndex();
+      this.setBottomScroll();
+    };
   }
 
   initSearch() {
@@ -1057,6 +1087,10 @@ class Messages {
     startIndex = Math.min(this._toChronologicalIndex(startIndex), this.messages.length - 1);
     endIndex = Math.max(this._toChronologicalIndex(endIndex), 0);
     return this.messages.slice(endIndex, startIndex + 1).reverse();
+  }
+
+  getLength() {
+    return this.messages.length;
   }
 
   getTimestampIndex(timestampMs) {

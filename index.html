@@ -54,19 +54,23 @@
     <li>Click on "Create a file"</li>
     <li>Once it has been created, download the archive</li>
     <li>Unpack the archive such that the messages/ folder is in the same directory as this file.</li>
-    <li>Locate the JSON of the threads you want to upload. <strong>Note: if there are multiple files for the same thread (e.g.: message_1.json, message_2.json, etc.), you can upload all of them at the same time to automatically merge them.</strong></li>
-    <li>Upload them using the button in the left sidebar</li>
+    <li>Locate the JSON of the threads you want to upload</li>
+    <li>Upload them using the button in the left sidebar. <strong>Note: if there are multiple files for the same thread (e.g.: message_1.json, message_2.json, etc.), select all of them at the same time to merge them.</strong></li>
   </ul>
 </article>
         <div id="conversation-controls" role="toolbar">
-          <div id="search" role="search">
+          <div role="search">
             <span id="search-input-formatting">
               <input type="text" id="search-input" aria-label="Search messages">
             </span>
             <button type="button" id="search-prev" aria-label="Previous"></button>
             <button type="button" id="search-next" aria-label="Next"></button>
           </div>
-          <div id="date">
+          <div>
+            <button type="button" id="go-to-start">Go to start</button>
+            <button type="button" id="go-to-end">Go to end</button>
+          </div>
+          <div>
             <label for="date-input">Date picker: </label>
             <input id="date-input">
           </div>

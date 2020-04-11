@@ -20,14 +20,18 @@
       <section id="content" class="content-width">
         {{instructions}}
         <div id="conversation-controls" role="toolbar">
-          <div id="search" role="search">
+          <div role="search">
             <span id="search-input-formatting">
               <input type="text" id="search-input" aria-label="Search messages">
             </span>
             <button type="button" id="search-prev" aria-label="Previous"></button>
             <button type="button" id="search-next" aria-label="Next"></button>
           </div>
-          <div id="date">
+          <div>
+            <button type="button" id="go-to-start">Go to start</button>
+            <button type="button" id="go-to-end">Go to end</button>
+          </div>
+          <div>
             <label for="date-input">Date picker: </label>
             <input id="date-input">
           </div>

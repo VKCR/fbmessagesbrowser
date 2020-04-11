@@ -362,8 +362,8 @@ Conversation viewer styling
     background-color: rgba(233, 235, 238, 0.8);
 }
 
-#date, #search {
-    flex: 1 0 300px;
+#conversation-controls div {
+    flex: 1 0 280px;
 }
 
 #conversation-controls input {
@@ -393,11 +393,12 @@ Conversation viewer styling
 }
 
 #search-prev, #search-next {
-    font-size: 1.5rem;
-    background: none;
-    border: none;
     padding: 2px;
+    border: none;
+    background: none;
+
     color: #29487d;
+    font-size: 1.5rem;
 }
 
 #search-prev::after {
@@ -414,6 +415,22 @@ Conversation viewer styling
 
 .not-found {
     color: red;
+}
+
+#go-to-start, #go-to-end {
+    background-color: #4267B2;
+
+    padding: 10px;
+    border: none;
+    width: 130px;
+
+    color: white;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+#go-to-start:hover, #go-to-end:hover {
+    cursor: pointer;
 }
 
 #date label {
