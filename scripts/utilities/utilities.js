@@ -7,7 +7,12 @@ async function parseInputFile(fileInput) {
   let decoder = new Utf16Decoder();
 
   for (let i = 0; i < fileInput.files.length; i++) {
-    const rawJson = await fileInput.files.item(i).text();
+    const reader = new FileReader();
+    const promise = new Promise(resolve => {
+      reader.onload = evt => resolve(evt.target.result);
+    });
+    reader.readAsText(fileInput.files.item(i));
+    const rawJson = await promise;
     const json = JSON.parse(decoder.decode(rawJson));
     jsons.push(json);
   }
@@ -171,16 +176,6 @@ class ProfilePictures {
   }
 
   getPicture(senderName) {
-    if (senderName in this.pictures) {
-      return this.pictures[senderName].cloneNode(true);
-    } else {
-      const picture = this._generatePicture(senderName);
-      this.pictures[senderName] = picture;
-      return picture;
-    }
-  }
-
-  _generatePicture(senderName) {
     const initial = senderName.toUpperCase().slice(0,1);
     const color = hashColor(senderName);
     const picture = document.createElement('span');

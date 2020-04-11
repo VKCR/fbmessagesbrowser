@@ -140,6 +140,10 @@ nav a:hover {
 Main definitions
 */
 
+#content {
+    overflow-y: auto;
+}
+
 main {
     min-height: 225px;
     height: calc(100vh - calc(43px + 40px));
@@ -436,7 +440,8 @@ Conversation viewer styling
 
 .content {
     position: relative;
-    display: block;
+    width: -moz-fit-content;
+    width: -webkit-fit-content;
     width: fit-content;
     background-color: #f1f0f0;
     margin: 0;
@@ -478,6 +483,29 @@ span.highlighted {
     position: absolute;
     left: 10px;
     bottom: 14px;
+}
+
+.message .profile-picture.has-reaction {
+    bottom: 35px;
+}
+
+.content.has-reaction {
+    margin-bottom: 20px;
+}
+
+.reaction {
+    position: absolute;
+    right: 0px;
+    bottom: -16px;
+
+    margin: 0px;
+    padding: 2px 6px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 2px 2px 2px #e9ebee, -2px 2px 2px #e9ebee;
+
+    font-size: 1.2rem;
+    cursor: default;
 }
 
 /*

@@ -7,7 +7,12 @@ async function parseInputFile(fileInput) {
   let decoder = new Utf16Decoder();
 
   for (let i = 0; i < fileInput.files.length; i++) {
-    const rawJson = await fileInput.files.item(i).text();
+    const reader = new FileReader();
+    const promise = new Promise(resolve => {
+      reader.onload = evt => resolve(evt.target.result);
+    });
+    reader.readAsText(fileInput.files.item(i));
+    const rawJson = await promise;
     const json = JSON.parse(decoder.decode(rawJson));
     jsons.push(json);
   }
@@ -171,16 +176,6 @@ class ProfilePictures {
   }
 
   getPicture(senderName) {
-    if (senderName in this.pictures) {
-      return this.pictures[senderName].cloneNode(true);
-    } else {
-      const picture = this._generatePicture(senderName);
-      this.pictures[senderName] = picture;
-      return picture;
-    }
-  }
-
-  _generatePicture(senderName) {
     const initial = senderName.toUpperCase().slice(0,1);
     const color = hashColor(senderName);
     const picture = document.createElement('span');
@@ -874,6 +869,7 @@ class ConversationViewer {
 
   displayNone() {
     this.clear();
+    this.clearScroll();
     this.showInstructions();
     this.hideControls();
   }
@@ -1294,6 +1290,9 @@ class ConversationRenderer {
       const content = await this.createNode(id, consecutiveMessages[0], 'content');
       article.appendChild(profilePicture);
       article.appendChild(content);
+      if (content.classList.contains('has-reaction')) {
+        profilePicture.classList.add('has-reaction');
+      }
     } else {
       const topContent = await this.createNode(id, consecutiveMessages[0], 'content top');
       article.appendChild(topContent);
@@ -1306,6 +1305,9 @@ class ConversationRenderer {
       const bottomContent = await this.createNode(id + consecutiveMessages.length - 1, consecutiveMessages[consecutiveMessages.length - 1], 'content bottom');
       article.appendChild(profilePicture);
       article.appendChild(bottomContent);
+      if (bottomContent.classList.contains('has-reaction')) {
+        profilePicture.classList.add('has-reaction');
+      }
     }
 
     return article;
@@ -1372,19 +1374,47 @@ class ConversationRenderer {
   }
 
   async createNode(id, message, classes) {
+    let node;
     if (message.photos) {
-      return await this.createImageNode(id, message.photos, classes);
+      node = await this.createImageNode(id, message.photos, classes);
     } else if (message.gifs) {
-      return await this.createImageNode(id, message.gifs, classes);
+      node = await this.createImageNode(id, message.gifs, classes);
     } else if (message.sticker) {
-      return await this.createImageNode(id, [message.sticker], classes);
+      node = await this.createImageNode(id, [message.sticker], classes);
     } else if (message.videos) {
-      return await this.createVideoNode(id, message.videos, classes);
+      node = await this.createVideoNode(id, message.videos, classes);
     } else if (message.share) {
-      return await this.createShareNode(message.content, message.share, classes);
+      node = await this.createShareNode(message.content, message.share, classes);
     } else{
-      return await this.createParagraphNode(message.content, classes);
+      node = await this.createParagraphNode(message.content, classes);
     }
+
+    if (message.reactions) {
+      const reactions = this.createReactions(message.reactions);
+      node.appendChild(reactions);
+      node.classList.add('has-reaction');
+    }
+
+    return node;
+  }
+
+  createReactions(reactions) {
+    const p = document.createElement('p');
+    p.setAttribute('class', 'reaction');
+    let uniqueReactions = [];
+    let actors = [];
+
+    reactions.forEach(r => {
+      if (!uniqueReactions.includes(r.reaction)) {
+        uniqueReactions.push(r.reaction);
+      }
+      actors.push(r.actor);
+    });
+
+    p.textContent = uniqueReactions.join(' ') + ' ' + reactions.length;
+    p.setAttribute('title', actors.join(', '));
+
+    return p;
   }
 
 
@@ -1405,9 +1435,16 @@ class ConversationRenderer {
     const article = document.querySelector('#id_' + this.articleSizes[i][0]);
     const message = article.querySelectorAll('.content')[offset];
 
+    let reaction = undefined;
+    if (message.classList.contains('has-reaction')) {
+      reaction = message.querySelector('.reaction');
+      message.removeChild(reaction);
+    }
+
     const regexp = new RegExp(text, 'gi');
     const fragments = message.textContent.split(regexp).map(t => document.createTextNode(t));
     const matches = message.textContent.matchAll(regexp);
+
 
     message.textContent = '';
     for (let i = 0; i < fragments.length - 1; i++) {
@@ -1415,8 +1452,11 @@ class ConversationRenderer {
       message.appendChild(fragments[i]);
       message.appendChild(createHighlightedText(nextMatch));
     }
-
     message.appendChild(fragments[fragments.length - 1]);
+
+    if (reaction) {
+      message.appendChild(reaction);
+    }
   }
 
   clear() {
