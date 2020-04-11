@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    {{head}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js" defer></script>
+    <script src="scripts/analytics.js" defer></script>
+  </head>
+  <body>
+    {{overlay}}
+    <header>
+      {{header}}
+    </header>
+    <main>
+      <aside id="aside-left">
+        {{aside-left}}
+      </aside>
+      <section id="content" class="content-width">
+        {{instructions}}
+        <section id="analytics-viewer">
+          <article class="chart">
+            <h2>Number of messages per participant: </h2>
+            <canvas id="message-count"></canvas>
+          </article>
+          <article class="chart">
+            <h2>Activity over time: </h2>
+            <canvas id="message-activity"></canvas>
+          </article>
+          <article class="chart">
+            <h2>Most used words (greater than 3 characters): </h2>
+            <canvas id="word-count"></canvas>
+          </article>
+        </section>
+      </section>
+      <aside id="aside-right">
+        {{aside-right}}
+      </aside>
+    </main>
+    <footer>
+      {{footer}}
+    </footer>
+  </body>
+</html>

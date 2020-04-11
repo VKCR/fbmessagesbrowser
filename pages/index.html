@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    {{head}}
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <script src="scripts/index.js" defer></script>
+  </head>
+  <body>
+    {{overlay}}
+    <header>
+      {{header}}
+    </header>
+    <main>
+      <aside id="aside-left">
+        {{aside-left}}
+      </aside>
+      <section id="content" class="content-width">
+        {{instructions}}
+        <div id="conversation-controls" role="toolbar">
+          <div id="search" role="search">
+            <span id="search-input-formatting">
+              <input type="text" id="search-input" aria-label="Search messages">
+            </span>
+            <button type="button" id="search-prev" aria-label="Previous"></button>
+            <button type="button" id="search-next" aria-label="Next"></button>
+          </div>
+          <div id="date">
+            <label for="date-input">Date picker: </label>
+            <input id="date-input">
+          </div>
+        </div>
+        <section id="conversation-viewer">
+        </section>
+      </section>
+      <aside id="aside-right">
+        {{aside-right}}
+      </aside>
+    </main>
+    <footer>
+      {{footer}}
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <title>Facebook messages browser</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="author" content="spqrxt@gmail.com">
+<meta name="description" content="The Facebook messages browser allows you to browse your archived Facebook threads.">
+<link href="styles/style.css" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <script src="scripts/index.js" defer></script>
+  </head>
+  <body>
+    <div id="overlay"><p></p></div>
+    <header>
+      <div class="header-content content-width">
+  <h1><a href="./index.html"><span id="f-letter-box"><span id="f-letter">f</span></span>acebook messages browser</a></h1>
+  <nav>
+      <ul>
+        <li><a href="./index.html">Browser</a></li>
+        <li><a href="./analytics.html">Analytics</a></li>
+        <li><a href="./about.html">About</a></li>
+      </ul>
+  </nav>
+</div>
+    </header>
+    <main>
+      <aside id="aside-left">
+        <div id="conversation-list">
+  <div id="conversation-list-empty">
+    <p>
+      No conversations to display
+    </p>
+  </div>
+</div>
+<div id="file-input">
+  <input type="file" accept="application/json" id="native-file-input" multiple>
+  <button type="button" id="custom-file-input">Upload file</button>
+</div>
+      </aside>
+      <section id="content" class="content-width">
+        <article id="instructions">
+  <h2>Instructions</h2>
+  <p>The Facebook messages browser allows you to browse your archived Facebook threads, which you first need to download from your Facebook account (in JSON format)</p>
+  <p>To download your Facebook threads in JSON format, follow these instructions: </p>
+  <ul>
+    <li>Go to your Facebook account settings page</li>
+    <li>Select the "Your personal information" tab from the left panel</li>
+    <li>Click on "Download your information"</li>
+    <li>Deselect all checkboxes except for "Messages". In the "Format" dropdown menu, select "JSON". Optionally, provide a date range.</li>
+    <li>Click on "Create a file"</li>
+    <li>Once it has been created, download the archive</li>
+    <li>Unpack the archive and locate the JSON of the threads you want to upload</li>
+    <li>Upload them using the left sidebar</li>
+  </ul>
+</article>
+        <div id="conversation-controls" role="toolbar">
+          <div id="search" role="search">
+            <span id="search-input-formatting">
+              <input type="text" id="search-input" aria-label="Search messages">
+            </span>
+            <button type="button" id="search-prev" aria-label="Previous"></button>
+            <button type="button" id="search-next" aria-label="Next"></button>
+          </div>
+          <div id="date">
+            <label for="date-input">Date picker: </label>
+            <input id="date-input">
+          </div>
+        </div>
+        <section id="conversation-viewer">
+        </section>
+      </section>
+      <aside id="aside-right">
+        <div id="participants">
+  <h2>Participants</h2>
+  <ul id="participant-list"></ul>
+</div>
+      </aside>
+    </main>
+    <footer>
+      <address>
+  <p>Send feedback to spqrxt(at)gmail.com</p>
+</address>
+    </footer>
+  </body>
+</html>

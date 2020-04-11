@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <title>Facebook messages browser</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="author" content="spqrxt@gmail.com">
+<meta name="description" content="The Facebook messages browser allows you to browse your archived Facebook threads.">
+<link href="styles/style.css" rel="stylesheet">
+    <script src="scripts/about.js" defer></script>
+  </head>
+  <body>
+    <div id="overlay"><p></p></div>
+    <header>
+      <div class="header-content content-width">
+  <h1><a href="./index.html"><span id="f-letter-box"><span id="f-letter">f</span></span>acebook messages browser</a></h1>
+  <nav>
+      <ul>
+        <li><a href="./index.html">Browser</a></li>
+        <li><a href="./analytics.html">Analytics</a></li>
+        <li><a href="./about.html">About</a></li>
+      </ul>
+  </nav>
+</div>
+    </header>
+    <main>
+      <aside id="aside-left">
+        <div id="conversation-list">
+  <div id="conversation-list-empty">
+    <p>
+      No conversations to display
+    </p>
+  </div>
+</div>
+<div id="file-input">
+  <input type="file" accept="application/json" id="native-file-input" multiple>
+  <button type="button" id="custom-file-input">Upload file</button>
+</div>
+      </aside>
+      <section id="content" class="content-width">
+        <article>
+          <h2>About the project</h2>
+          <p>I initially started this side project because I wanted to browse my own Facebook threads, but found it hard to do so on Facebook, particularly since it lacks an option to go to a particular date. As the project grew, I thought it could interest other people as well, which is why I decided to put it online.</p>
+          <p>The browser makes it easier to view your threads, in particular by allowing you to go to any date using the date picker, and by saving your location in the thread when you leave the page, so that you can resume reading the thread from the same location the next time you open the page.</p>
+          <p>Right now, only message contents are shown - but I am planning on adding functionality in the near future, such as reactions, shared content, etc.
+          <p>Finally, you will find some fun graphs about your threads in the analytics tab!</p>
+        </article>
+        <article>
+          <h2>How it works</h2>
+          <p>The Facebook messages browser is a pure JavaScript application: everything happens in the browser. There is no backend, and I want to emphasize that <em>nothing gets uploaded</em>. Basically, it is a "pretty" interface for the raw JSON thread, which I try to make visually close to the real Facebook messenger interface.</p>
+          <p>The threads get persisted using IndexedDB, so that you don't have to reupload them every time you use this website. The graphs in the analytics page are generated with Chart.js, and the date picker is created with Daterangepicker.</p>
+        </article>
+      </section>
+      <aside id="aside-right">
+        <div id="participants">
+  <h2>Participants</h2>
+  <ul id="participant-list"></ul>
+</div>
+      </aside>
+    </main>
+    <footer>
+      <address>
+  <p>Send feedback to spqrxt(at)gmail.com</p>
+</address>
+    </footer>
+  </body>
+</html>
