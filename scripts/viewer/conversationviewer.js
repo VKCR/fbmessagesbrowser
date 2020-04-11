@@ -85,10 +85,10 @@ class ConversationViewer {
       showDropdowns: true,
       minYear: 2005,
       maxYear: parseInt(moment().format('YYYY'), 10)
-    }, (start, end, label) => {
+    }, async (start, end, label) => {
       const timestampMs = Date.parse(start);
       const index = this.messages[this.current].getTimestampIndex(timestampMs);
-      this.displayCurrentAtIndex(index);
+      await this.displayCurrentAtIndex(index);
       this.messages[this.current].resetSearchIndex();
     });
   }
@@ -112,7 +112,7 @@ class ConversationViewer {
     searchPrev.onclick = e => this.searchPrev(searchInput.value);
   }
 
-  searchNext(searchString) {
+  async searchNext(searchString) {
     this.clearNotFound();
     searchString = RegExp.escape(searchString);
     if (!searchString) {
@@ -123,14 +123,14 @@ class ConversationViewer {
     const nextIndex = this.messages[this.current].findNextOccurence(searchString, currentIndex);
 
     if (nextIndex !== -1) {
-      this.displayCurrentAtIndex(nextIndex);
+      await this.displayCurrentAtIndex(nextIndex);
       this.renderer.highlightText(searchString, nextIndex);
     } else {
       this.searchNotFound();
     }
   }
 
-  searchPrev(searchString) {
+  async searchPrev(searchString) {
     this.clearNotFound();
     searchString = RegExp.escape(searchString);
     if (!searchString) {
@@ -141,7 +141,7 @@ class ConversationViewer {
     const prevIndex = this.messages[this.current].findPrevOccurence(searchString, currentIndex);
 
     if (prevIndex !== -1) {
-      this.displayCurrentAtIndex(prevIndex);
+      await this.displayCurrentAtIndex(prevIndex);
       this.renderer.highlightText(searchString, prevIndex);
     } else {
       this.searchNotFound();
@@ -502,12 +502,37 @@ class ConversationRenderer {
     return content;
   }
 
-  async createVideoNode(videos, classes) {
-    // TODO
+  async createVideoNode(index, videos, classes) {
+    let content = document.createElement('p');
+    content.setAttribute('class', classes);
+    for (const video of videos) {
+      const identifier = index + ':' + video['uri'];
+      if (identifier in this.nodeCache) {
+        content.append(this.nodeCache[identifier]);
+      } else {
+        let vid = document.createElement('video');
+        vid.setAttribute('src', video['uri']);
+        vid.setAttribute('poster', video['thumbnail']['uri']);
+        vid.setAttribute('controls', true);
+        await new Promise(resolve => { vid.onloadeddata = () => resolve(); });
+        content.appendChild(vid);
+        this.nodeCache[identifier] = vid;
+      }
+    }
+
+    return content;
   }
 
-  async createShareNode(share, classes) {
-    // TODO
+  async createShareNode(text, share, classes) {
+    let content = document.createElement('p');
+    content.setAttribute('class', classes);
+    let link = document.createElement('a');
+    link.setAttribute('href', share['link']);
+    link.setAttribute('target', '_blank');
+    link.textContent = text;
+    content.appendChild(link);
+
+    return content;
   }
 
   async createNode(id, message, classes) {
@@ -517,7 +542,11 @@ class ConversationRenderer {
       return await this.createImageNode(id, message.gifs, classes);
     } else if (message.sticker) {
       return await this.createImageNode(id, [message.sticker], classes);
-    } else {
+    } else if (message.videos) {
+      return await this.createVideoNode(id, message.videos, classes);
+    } else if (message.share) {
+      return await this.createShareNode(message.content, message.share, classes);
+    } else{
       return await this.createParagraphNode(message.content, classes);
     }
   }
@@ -626,6 +655,15 @@ class ConversationRenderer {
         let img = document.createElement('img');
         img.setAttribute('src', m[i].sticker['uri']);
         this.nodeCache[identifier] = img;
+      } else if (m[i].videos) {
+        for (const video of m[i].videos) {
+          const identifier = parseInt(startIndex + i, 10) + ':' + video['uri'];
+          let vid = document.createElement('video');
+          vid.setAttribute('src', video['uri']);
+          vid.setAttribute('poster', video['thumbnail']['uri']);
+          vid.setAttribute('controls', true);
+          this.nodeCache[identifier] = vid;
+        }
       }
     }
   }

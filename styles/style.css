@@ -466,6 +466,10 @@ Conversation viewer styling
     padding: 10px;
 }
 
+.content video {
+    padding: 10px;
+}
+
 span.highlighted {
     background-color: orange;
 }
