@@ -239,6 +239,7 @@ aside {
 
 .conversation span {
     display: inline-block;
+    padding: 10px;
     padding-right: 20px;
     vertical-align: middle;
 
@@ -459,6 +460,10 @@ Conversation viewer styling
 .content.bottom {
     border-top-left-radius: 0px;
     margin: 0;
+}
+
+.content img {
+    padding: 10px;
 }
 
 span.highlighted {

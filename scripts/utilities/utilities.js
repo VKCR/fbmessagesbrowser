@@ -87,7 +87,15 @@ function getConversationFromJsons(jsons) {
         senderName: message['sender_name'],
         timestampMs: message['timestamp_ms'],
         content: message['content'],
-        type: message['type']
+        type: message['type'],
+        share: message['share'],
+        reactions: message['reactions'],
+        gifs: message['gifs'],
+        videos: message['videos'],
+        photos: message['photos'],
+        audioFiles: message['audio_files'],
+        sticker: message['sticker'],
+        files: message['files']
       };
     });
     catdMessages = catdMessages.concat(messages);

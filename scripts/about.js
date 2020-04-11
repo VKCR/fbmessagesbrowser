@@ -87,7 +87,15 @@ function getConversationFromJsons(jsons) {
         senderName: message['sender_name'],
         timestampMs: message['timestamp_ms'],
         content: message['content'],
-        type: message['type']
+        type: message['type'],
+        share: message['share'],
+        reactions: message['reactions'],
+        gifs: message['gifs'],
+        videos: message['videos'],
+        photos: message['photos'],
+        audioFiles: message['audio_files'],
+        sticker: message['sticker'],
+        files: message['files']
       };
     });
     catdMessages = catdMessages.concat(messages);
@@ -859,7 +867,7 @@ class ConversationViewer {
       }
     }
 
-    this.renderer.render(this.messages[id]);
+    await this.renderer.render(this.messages[id]);
     this.setDefaultScroll();
   }
 
@@ -1201,8 +1209,8 @@ class ConversationRenderer {
     this.articleSizes = [];
   }
 
-  render(messages) {
-    const articles = this.createArticles(messages.getMessages(), messages.getStartIndex());
+  async render(messages) {
+    const articles = await this.createArticles(messages.getMessages(), messages.getStartIndex());
     for (const article of articles) {
       this.viewer.appendChild(article);
     }
@@ -1232,7 +1240,7 @@ class ConversationRenderer {
   }
 
   /* Divides a conversation into an array of arrays of consecutive messages sent by the same sender within an hour. */
-  createArticles(messages, startId) {
+  async createArticles(messages, startId) {
     function sameSender(messageA, messageB) {
       return messageA['senderName'] === messageB['senderName'];
     }
@@ -1249,7 +1257,8 @@ class ConversationRenderer {
       while (messages[i+j] && sameSender(messages[i], messages[i+j]) && withinAnHour(messages[i], messages[i+j])) {
         consecutiveMessages.push(messages[i + j++]);
       }
-      articles.push(this.createArticleNode(consecutiveMessages, startId + i));
+      const articleNode = await this.createArticleNode(consecutiveMessages, startId + i);
+      articles.push(articleNode);
       i += j;
     }
 
@@ -1257,11 +1266,11 @@ class ConversationRenderer {
   }
 
   /* Create an article node from an array of consecutive JSON messages. */
-  createArticleNode(consecutiveMessages, id) {
+  async createArticleNode(consecutiveMessages, id) {
     /*
       Generate a content paragraph.
     */
-    function createParagraphNode(textContent, classes) {
+    async function createParagraphNode(textContent, classes) {
       let content = document.createElement('p');
       content.setAttribute('class', classes);
       content.textContent = textContent;
@@ -1269,29 +1278,58 @@ class ConversationRenderer {
       return content;
     }
 
+    async function createImageNode(images, classes) {
+      let content = document.createElement('p');
+      content.setAttribute('class', classes);
+      for (const image of images) {
+        let img = document.createElement('img');
+        img.setAttribute('src', image['uri']);
+        await new Promise(resolve => { img.onload = () => resolve(); });
+        content.appendChild(img);
+      }
+
+      return content;
+    }
+
+    async function createVideoNode(videos, classes) {
+      // TODO
+    }
+
+    async function createNode(message, classes) {
+      if (message.photos) {
+        return await createImageNode(message.photos, classes);
+      } else if (message.gifs) {
+        return await createImageNode(message.gifs, classes);
+      } else if (message.sticker) {
+        return await createImageNode([message.sticker], classes);
+      } else {
+        return await createParagraphNode(message.content, classes);
+      }
+    }
+
     const article = document.createElement('article');
     article.setAttribute('class', 'message');
     article.setAttribute('id', 'id_' + id);
-    const timestamp = createParagraphNode(formatTimestamp(consecutiveMessages[0].timestampMs), 'timestamp');
+    const timestamp = await createParagraphNode(formatTimestamp(consecutiveMessages[0].timestampMs), 'timestamp');
     article.appendChild(timestamp);
-    const participant = createParagraphNode(consecutiveMessages[0]['senderName'], 'sender-name');
+    const participant = await createParagraphNode(consecutiveMessages[0]['senderName'], 'sender-name');
     article.appendChild(participant);
     const profilePicture = this.profilePictures.getPicture(consecutiveMessages[0]['senderName']);
 
     if (consecutiveMessages.length === 1) {
-      const content = createParagraphNode(consecutiveMessages[0]['content'], 'content');
+      const content = await createNode(consecutiveMessages[0], 'content');
       article.appendChild(profilePicture);
       article.appendChild(content);
     } else {
-      const topContent = createParagraphNode(consecutiveMessages[0]['content'], 'content top');
+      const topContent = await createNode(consecutiveMessages[0], 'content top');
       article.appendChild(topContent);
 
       for (let i = 1; i < consecutiveMessages.length - 1; i++) {
-        const middleContent = createParagraphNode(consecutiveMessages[i]['content'], 'content middle');
+        const middleContent = await createNode(consecutiveMessages[i], 'content middle');
         article.appendChild(middleContent);
       }
 
-      const bottomContent = createParagraphNode(consecutiveMessages[consecutiveMessages.length - 1]['content'], 'content bottom');
+      const bottomContent = await createNode(consecutiveMessages[consecutiveMessages.length - 1], 'content bottom');
       article.appendChild(profilePicture);
       article.appendChild(bottomContent);
     }
