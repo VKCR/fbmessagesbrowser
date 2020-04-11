@@ -362,6 +362,10 @@ Conversation viewer styling
     background-color: rgba(233, 235, 238, 0.8);
 }
 
+#date, #search {
+    flex: 1 0 300px;
+}
+
 #conversation-controls input {
     font-size: 1.5rem;
     line-height: 1.2;
