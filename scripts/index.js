@@ -848,13 +848,13 @@ class ConversationViewer {
 
     this.initDateInput();
     this.initSearch();
-    this.initScroll();
   }
 
   /* Public methods */
 
   async display(id, state) {
     this.clear(); // Start by clearing the current contents of the view
+    this.clearScroll();
     this.hideInstructions();
     this.showControls();
     this.current = id;
@@ -868,6 +868,7 @@ class ConversationViewer {
     }
 
     await this.renderer.render(this.messages[id]);
+    this.initScroll(id);
     this.setDefaultScroll();
   }
 
@@ -891,9 +892,9 @@ class ConversationViewer {
 
   /* Internal methods */
 
-  displayCurrentAtIndex(index) {
+  async displayCurrentAtIndex(index) {
     this.messages[this.current].loadAtIndex(index);
-    this.display(this.current);
+    await this.display(this.current);
     this.setCenteredScroll(index);
   }
 
@@ -993,27 +994,28 @@ class ConversationViewer {
     searchInput.classList.remove('not-found');
   }
 
-  initScroll() {
+  initScroll(id) {
     this.viewer.onscroll = () => {
-      if (!this.messages[this.current]) { // weird race conditions when building the conversation
-        return;
-      }
-      this.messages[this.current].setScrollTop(this.viewer.scrollTop);
+      this.messages[id].setScrollTop(this.viewer.scrollTop);
       let statusChanged = false;
 
       if (this.viewer.scrollTop === 0) { // if reached the top of the page
-        statusChanged = this.messages[this.current].loadPreviousMessages();
+        statusChanged = this.messages[id].loadPreviousMessages();
       } else if (this.viewer.scrollTop + this.viewer.clientHeight === this.viewer.scrollHeight) { // if reached the bottom of the page
-        statusChanged = this.messages[this.current].loadNextMessages();
+        statusChanged = this.messages[id].loadNextMessages();
       }
       if (statusChanged) {
-        this.display(this.current).then(() => {
-          const newScrollTop = this.messages[this.current].getScrollTop() + this.renderer.getDelta();
-          this.messages[this.current].setScrollTop(newScrollTop);
+        this.display(id).then(() => {
+          const newScrollTop = this.messages[id].getScrollTop() + this.renderer.getDelta();
+          this.messages[id].setScrollTop(newScrollTop);
           this.viewer.scrollTop = newScrollTop;
         });
       }
     };
+  }
+
+  clearScroll() {
+    this.viewer.onscroll = undefined;
   }
 
   clear() {
@@ -1053,6 +1055,12 @@ class Messages {
 
   getMessages() {
     return this.messages.slice(this.endIndex, this.startIndex + 1).reverse();
+  }
+
+  getMessagesFromIndices(startIndex, endIndex) {
+    startIndex = Math.min(this._toChronologicalIndex(startIndex), this.messages.length - 1);
+    endIndex = Math.max(this._toChronologicalIndex(endIndex), 0);
+    return this.messages.slice(endIndex, startIndex + 1).reverse();
   }
 
   getTimestampIndex(timestampMs) {
@@ -1196,6 +1204,10 @@ class Messages {
     return this._toChronologicalIndex(this.startIndex);
   }
 
+  getEndIndex() {
+    return this._toChronologicalIndex(this.endIndex);
+  }
+
   _toChronologicalIndex(index) { // reverts the index (i.e as if the messages were chronologically indexed) (or vice versa);
     return (this.messages.length - 1) - index;
   }
@@ -1207,6 +1219,7 @@ class ConversationRenderer {
     this.viewer = document.querySelector('#conversation-viewer');
     this.delta = 0;
     this.articleSizes = [];
+    this.nodeCache = {};
   }
 
   async render(messages) {
@@ -1215,6 +1228,7 @@ class ConversationRenderer {
       this.viewer.appendChild(article);
     }
     this._updateDelta();
+    this._prepopulateNodeCache(messages);
   }
 
   getDelta() {
@@ -1267,75 +1281,83 @@ class ConversationRenderer {
 
   /* Create an article node from an array of consecutive JSON messages. */
   async createArticleNode(consecutiveMessages, id) {
-    /*
-      Generate a content paragraph.
-    */
-    async function createParagraphNode(textContent, classes) {
-      let content = document.createElement('p');
-      content.setAttribute('class', classes);
-      content.textContent = textContent;
-
-      return content;
-    }
-
-    async function createImageNode(images, classes) {
-      let content = document.createElement('p');
-      content.setAttribute('class', classes);
-      for (const image of images) {
-        let img = document.createElement('img');
-        img.setAttribute('src', image['uri']);
-        await new Promise(resolve => { img.onload = () => resolve(); });
-        content.appendChild(img);
-      }
-
-      return content;
-    }
-
-    async function createVideoNode(videos, classes) {
-      // TODO
-    }
-
-    async function createNode(message, classes) {
-      if (message.photos) {
-        return await createImageNode(message.photos, classes);
-      } else if (message.gifs) {
-        return await createImageNode(message.gifs, classes);
-      } else if (message.sticker) {
-        return await createImageNode([message.sticker], classes);
-      } else {
-        return await createParagraphNode(message.content, classes);
-      }
-    }
-
     const article = document.createElement('article');
     article.setAttribute('class', 'message');
     article.setAttribute('id', 'id_' + id);
-    const timestamp = await createParagraphNode(formatTimestamp(consecutiveMessages[0].timestampMs), 'timestamp');
+    const timestamp = await this.createParagraphNode(formatTimestamp(consecutiveMessages[0].timestampMs), 'timestamp');
     article.appendChild(timestamp);
-    const participant = await createParagraphNode(consecutiveMessages[0]['senderName'], 'sender-name');
+    const participant = await this.createParagraphNode(consecutiveMessages[0]['senderName'], 'sender-name');
     article.appendChild(participant);
     const profilePicture = this.profilePictures.getPicture(consecutiveMessages[0]['senderName']);
 
     if (consecutiveMessages.length === 1) {
-      const content = await createNode(consecutiveMessages[0], 'content');
+      const content = await this.createNode(id, consecutiveMessages[0], 'content');
       article.appendChild(profilePicture);
       article.appendChild(content);
     } else {
-      const topContent = await createNode(consecutiveMessages[0], 'content top');
+      const topContent = await this.createNode(id, consecutiveMessages[0], 'content top');
       article.appendChild(topContent);
 
       for (let i = 1; i < consecutiveMessages.length - 1; i++) {
-        const middleContent = await createNode(consecutiveMessages[i], 'content middle');
+        const middleContent = await this.createNode(id + i, consecutiveMessages[i], 'content middle');
         article.appendChild(middleContent);
       }
 
-      const bottomContent = await createNode(consecutiveMessages[consecutiveMessages.length - 1], 'content bottom');
+      const bottomContent = await this.createNode(id + consecutiveMessages.length - 1, consecutiveMessages[consecutiveMessages.length - 1], 'content bottom');
       article.appendChild(profilePicture);
       article.appendChild(bottomContent);
     }
 
     return article;
   }
+
+  async createParagraphNode(textContent, classes) {
+    let content = document.createElement('p');
+    content.setAttribute('class', classes);
+    content.textContent = textContent;
+
+    return content;
+  }
+
+  async createImageNode(index, images, classes) {
+    let content = document.createElement('p');
+    content.setAttribute('class', classes);
+    for (const image of images) {
+      const identifier = index + ':' + image['uri'];
+      if (identifier in this.nodeCache) {
+        content.append(this.nodeCache[identifier]);
+      } else {
+        let img = document.createElement('img');
+        img.setAttribute('src', image['uri']);
+        await new Promise(resolve => { img.onload = () => resolve(); });
+        content.appendChild(img);
+        this.nodeCache[identifier] = img;
+      }
+    }
+
+    return content;
+  }
+
+  async createVideoNode(videos, classes) {
+    // TODO
+  }
+
+  async createShareNode(share, classes) {
+    // TODO
+  }
+
+  async createNode(id, message, classes) {
+    if (message.photos) {
+      return await this.createImageNode(id, message.photos, classes);
+    } else if (message.gifs) {
+      return await this.createImageNode(id, message.gifs, classes);
+    } else if (message.sticker) {
+      return await this.createImageNode(id, [message.sticker], classes);
+    } else {
+      return await this.createParagraphNode(message.content, classes);
+    }
+  }
+
 
   highlightText(text, index) {
     function createHighlightedText(text) {
@@ -1412,6 +1434,36 @@ class ConversationRenderer {
       sizes.push([id, article.offsetHeight]);
     }
     return sizes;
+  }
+
+  _prepopulateNodeCache(messages) {
+    this.nodeCache = {}; // empty cache
+    let startIndex = Math.max(messages.getStartIndex() - 100, 0);
+    let endIndex = messages.getEndIndex() + 100;
+    const m = messages.getMessagesFromIndices(startIndex, endIndex);
+
+    for (let i = 0; i < m.length; i++) {
+      if (m[i].photos) {
+        for (const photo of m[i].photos) {
+          const identifier = parseInt(startIndex + i, 10) + ':' + photo['uri'];
+          let img = document.createElement('img');
+          img.setAttribute('src', photo['uri']);
+          this.nodeCache[identifier] = img;
+        }
+      } else if (m[i].gifs) {
+        for (const gif of m[i].gifs) {
+          const identifier = parseInt(startIndex + i, 10) + ':' + gif['uri'];
+          let img = document.createElement('img');
+          img.setAttribute('src', gif['uri']);
+          this.nodeCache[identifier] = img;
+        }
+      } else if (m[i].sticker) {
+        const identifier = parseInt(startIndex + i, 10) + ':' + m[i].sticker['uri'];
+        let img = document.createElement('img');
+        img.setAttribute('src', m[i].sticker['uri']);
+        this.nodeCache[identifier] = img;
+      }
+    }
   }
 }
 const storage = new ConversationIDBStorage();
