@@ -27,6 +27,10 @@ This is a pure JavaScript application which you can run in your web browser: bas
 * Locate the JSON of the threads you want to upload in messages/inbox/
 * Upload them using the button in the left sidebar. **Note: if there are multiple files for the same thread (e.g.: message_1.json, message_2.json, etc.), select all of them at the same time to merge them.**
 
+## Troubleshooting
+
+In some browsers (e.g. Chromium) you will need to stop blocking third party cookies in order for the app to work. 
+
 ## Contribute
 
 Feel free to report bugs using the GitHub issue tracker and make other contributions.
