@@ -6,7 +6,7 @@
 
 The Facebook messages browser makes it easier to browse your Facebook threads, in particular by allowing you to upload and view multiple threads at a time, go to any date using the date picker, and by saving your location in the thread when you leave the page, so that you can resume reading the thread from the same location the next time you open the page. Finally, you will find some fun graphs about your threads in the analytics tab!
 
-This is a pure JavaScript application: basically, it is a "pretty" interface for the archived threads, which I try to make visually close to the real Facebook messenger interface. 
+This is a pure JavaScript application which you can run in your web browser: basically, it is a "pretty" interface for the archived threads, which I try to make visually close to the real Facebook messenger interface. **No data of yours is sent to any backend server, as everything runs in your web browser.**
 
 ## Installation
 
