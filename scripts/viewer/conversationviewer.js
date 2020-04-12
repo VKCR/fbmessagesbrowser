@@ -196,7 +196,7 @@ class ConversationViewer {
 
       if (this.viewer.scrollTop === 0) { // if reached the top of the page
         statusChanged = this.messages[id].loadPreviousMessages();
-      } else if (this.viewer.scrollTop + this.viewer.clientHeight === this.viewer.scrollHeight) { // if reached the bottom of the page
+      } else if (Math.abs(this.viewer.scrollTop + this.viewer.clientHeight - this.viewer.scrollHeight) < 1) { // if reached the bottom of the page
         statusChanged = this.messages[id].loadNextMessages();
       }
       if (statusChanged) {

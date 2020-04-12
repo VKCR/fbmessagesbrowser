@@ -18,5 +18,5 @@ for pageName in os.listdir('pages/'):
     newPage = open(pageName, "w")
     newPage.write(pageSrc)
 
-
-
+os.system('./catscripts.sh')
+os.system('./bundle-release.sh')
