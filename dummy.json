@@ -1,0 +1,58 @@
+{
+  "participants": [
+    {
+      "name": "John Smith"
+    },
+    {
+      "name": "Bob Smith"
+    }
+  ],
+  "messages": [
+    {
+      "sender_name": "John Smith",
+      "timestamp_ms": 1580853023939,
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam congue sapien id justo rhoncus rutrum. Sed nisi dolor, pellentesque sed imperdiet ac, fringilla eu nulla.",
+      "type": "Generic"
+    },
+    {
+      "sender_name": "Bob Smith",
+      "timestamp_ms": 1580853023939,
+      "content": "Mauris finibus congue urna quis dignissim. Suspendisse elit leo, gravida ultricies pretium in, blandit vitae tortor. Aliquam eleifend convallis placerat. Pellentesque tristique et magna vel tempus. Ut viverra pharetra mattis. Aliquam erat volutpat.",
+      "type": "Generic"
+    },
+    {
+      "sender_name": "John Smith",
+      "timestamp_ms": 1580853023939,
+      "content": "Cras consequat nec felis eget semper.",
+      "type": "Generic"
+    },
+    {
+      "sender_name": "John Smith",
+      "timestamp_ms": 1580853023939,
+      "content": "Donec turpis justo, sollicitudin non molestie vel, iaculis ut lectus. Nulla varius, massa sed imperdiet tincidunt, purus velit bibendum ex, nec ultricies neque enim ut odio.",
+      "type": "Generic"
+    },
+    {
+      "sender_name": "Bob Smith",
+      "timestamp_ms": 1580852987198,
+      "content": "Etiam tincidunt enim id metus consectetur, ac viverra tortor faucibus.",
+      "reactions": [
+        {
+          "reaction": "\u00f0\u009f\u0098\u00ae",
+          "actor": "John Smith"
+        }
+      ],
+      "type": "Generic"
+    },
+    {
+      "sender_name": "John Smith",
+      "timestamp_ms": 1580852735871,
+      "content": "Maecenas tincidunt, ex eget facilisis egestas, eros mi aliquam metus, quis finibus ante eros bibendum mauris. Etiam quis rutrum risus. Donec a urna congue, facilisis eros et, euismod massa. In sapien mi, viverra in tincidunt in, hendrerit at massa.",
+      "type": "Generic"
+    }
+  ],
+  "title": "Dummy thread",
+  "is_still_participant": true,
+  "thread_type": "RegularGroup",
+  "thread_path": "inbox/dummy_thread"
+}
