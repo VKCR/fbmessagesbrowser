@@ -334,6 +334,12 @@ footer p {
     color: #666666;
 }
 
+footer a {
+    color: #666666;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
 /*
 Conversation viewer styling
 */
